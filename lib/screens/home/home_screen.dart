@@ -7,8 +7,6 @@ import 'package:hmo_app/screens/plans/plan_details_screen.dart';
 import 'package:hmo_app/screens/notifications/notifications_screen.dart';
 import 'package:hmo_app/screens/profile/profile_screen.dart';
 import 'package:hmo_app/screens/providers/hmo_providers_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:hmo_app/services/auth_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
