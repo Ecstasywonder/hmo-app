@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hmo_app/screens/auth/signup_screen.dart';
 import 'package:hmo_app/screens/home/home_screen.dart';
 import 'package:hmo_app/screens/admin/admin_dashboard.dart';
+import 'package:hmo_app/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -133,9 +135,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      // Navigate based on user type
+                      Provider.of<AuthService>(context, listen: false).login(isAdmin: _isAdmin);
+                      
+                      if (!mounted) return;
+                      
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

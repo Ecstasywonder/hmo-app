@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:hmo_app/services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -101,7 +103,28 @@ class ProfileScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // Handle logout
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Logout'),
+                      content: const Text('Are you sure you want to logout?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close dialog
+                            Provider.of<AuthService>(context, listen: false)
+                                .logout(context);
+                          },
+                          style: TextButton.styleFrom(foregroundColor: Colors.red),
+                          child: const Text('Logout'),
+                        ),
+                      ],
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.logout),
                 label: const Text('Logout'),
