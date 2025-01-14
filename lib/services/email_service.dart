@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class EmailService {
   static Future<void> sendCredentials({
@@ -11,26 +12,39 @@ class EmailService {
     required String password,
   }) async {
     if (kIsWeb) {
-      // Web implementation using mailto
-      final emailContent = '''
-Subject: Welcome to CareLink HMO - Your Login Credentials
-
-Dear $recipientName,
-
-Your account has been successfully created. Here are your login credentials:
-
-Enrollee Number: $enrolleeNumber
-Password: $password
-
-For security reasons, please change your password after your first login.
-
-Best regards,
-The CareLink HMO Team
-''';
+      // Web implementation using EmailJS
+      const serviceId = 'YOUR_EMAILJS_SERVICE_ID';
+      const templateId = 'YOUR_EMAILJS_TEMPLATE_ID';
+      const userId = 'YOUR_EMAILJS_USER_ID';
       
-      final mailtoLink = 'mailto:$recipientEmail?subject=${Uri.encodeComponent('Welcome to CareLink HMO - Your Login Credentials')}&body=${Uri.encodeComponent(emailContent)}';
-      html.window.location.href = mailtoLink;
-      
+      final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+      try {
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            'service_id': serviceId,
+            'template_id': templateId,
+            'user_id': userId,
+            'template_params': {
+              'to_email': recipientEmail,
+              'to_name': recipientName,
+              'enrollee_number': enrolleeNumber,
+              'password': password,
+            },
+          }),
+        );
+
+        if (response.statusCode != 200) {
+          throw Exception('Failed to send email: ${response.body}');
+        }
+        
+      } catch (e) {
+        print('Error sending email: $e');
+        rethrow;
+      }
     } else {
       // Native platform implementation using SMTP
       final smtpServer = gmail(
@@ -44,10 +58,10 @@ The CareLink HMO Team
         ..subject = 'Welcome to CareLink HMO - Your Login Credentials'
         ..html = '''
           <h2>Welcome to CareLink HMO!</h2>
-          <p>Dear $recipientName,</p>
+          <p>Dear {{to_name}},</p>
           <p>Your account has been successfully created. Here are your login credentials:</p>
-          <p><strong>Enrollee Number:</strong> $enrolleeNumber</p>
-          <p><strong>Password:</strong> $password</p>
+          <p><strong>Enrollee Number:</strong> {{enrollee_number}}</p>
+          <p><strong>Password:</strong> {{password}}</p>
           <p>For security reasons, please change your password after your first login.</p>
           <p>You can log in to your account at <a href="https://carelink-hmo.com">carelink-hmo.com</a></p>
           <p>If you have any questions, please don't hesitate to contact our support team.</p>
