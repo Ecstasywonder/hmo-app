@@ -408,7 +408,7 @@ class _ManageClaimsScreenState extends State<ManageClaimsScreen> {
           children: [
             Text('Reject claim for ${claim['patientName']}?'),
             const SizedBox(height: 16),
-            TextField(
+            TextFormField(
               controller: reasonController,
               decoration: const InputDecoration(
                 labelText: 'Reason for Rejection',
@@ -449,4 +449,4 @@ class _ManageClaimsScreenState extends State<ManageClaimsScreen> {
     _searchController.dispose();
     super.dispose();
   }
-} 
+}
