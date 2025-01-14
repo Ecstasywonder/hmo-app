@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CareLink',
+      title: 'CareLink HMO',
       theme: AppTheme.lightTheme,
       home: const LoginScreen(),
       debugShowCheckedModeBanner: false,

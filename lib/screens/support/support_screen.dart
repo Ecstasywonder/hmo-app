@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hmo_app/screens/support/claims_screen.dart';
+import 'package:hmo_app/screens/support/coverage_screen.dart';
+import 'package:hmo_app/screens/support/contact_screen.dart';
+import 'package:hmo_app/screens/support/faq_screen.dart';
 
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
@@ -54,21 +57,30 @@ class SupportScreen extends StatelessWidget {
                   'Coverage',
                   'Check what\'s covered',
                   Icons.health_and_safety,
-                  () {},
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CoverageScreen()),
+                  ),
                 ),
                 _buildHelpCard(
                   context,
                   'Contact Us',
                   'Get in touch with us',
                   Icons.headset_mic,
-                  () {},
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ContactScreen()),
+                  ),
                 ),
                 _buildHelpCard(
                   context,
                   'FAQs',
                   'Common questions',
                   Icons.help_outline,
-                  () {},
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FaqScreen()),
+                  ),
                 ),
               ],
             ),
