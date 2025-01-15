@@ -67,13 +67,13 @@ class MedicalRecordsVerificationScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Reject Record'),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Please provide a reason for rejection:'),
-            const SizedBox(height: 16),
+            Text('Please provide a reason for rejection:'),
+            SizedBox(height: 16),
             TextField(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Reason',
                 border: OutlineInputBorder(),
               ),

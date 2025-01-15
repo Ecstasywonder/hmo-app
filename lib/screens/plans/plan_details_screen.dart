@@ -77,14 +77,14 @@ class PlanDetailsScreen extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => PlanComparisonScreen(
                   plans: [
-                    {
+                    const {
                       'name': 'Basic',
                       'price': '25,000',
                       'coverage': '60%',
                       'features': ['4 visits/year', 'Basic Coverage'],
                     },
                     plan, // Current plan
-                    {
+                    const {
                       'name': 'Premium',
                       'price': '65,000',
                       'coverage': '100%',
@@ -151,7 +151,7 @@ class PlanDetailsScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.star, color: Colors.amber, size: 20),
+                const Icon(Icons.star, color: Colors.amber, size: 20),
                 const SizedBox(width: 4),
                 Text(plan['rating']),
                 const SizedBox(width: 16),
@@ -239,31 +239,31 @@ class PlanDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildNetworkSection() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Hospital Network',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         ListTile(
-          leading: const Icon(Icons.local_hospital),
-          title: const Text('General Hospital Lagos'),
-          subtitle: const Text('Lagos, Nigeria'),
+          leading: Icon(Icons.local_hospital),
+          title: Text('General Hospital Lagos'),
+          subtitle: Text('Lagos, Nigeria'),
         ),
         ListTile(
-          leading: const Icon(Icons.local_hospital),
-          title: const Text('University College Hospital'),
-          subtitle: const Text('Ibadan, Nigeria'),
+          leading: Icon(Icons.local_hospital),
+          title: Text('University College Hospital'),
+          subtitle: Text('Ibadan, Nigeria'),
         ),
         ListTile(
-          leading: const Icon(Icons.local_hospital),
-          title: const Text('National Hospital'),
-          subtitle: const Text('Abuja, Nigeria'),
+          leading: Icon(Icons.local_hospital),
+          title: Text('National Hospital'),
+          subtitle: Text('Abuja, Nigeria'),
         ),
       ],
     );
@@ -412,31 +412,31 @@ class PlanDetailsScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Enter Card Details'),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Card Number',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Expiry',
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'CVV',
                       border: OutlineInputBorder(),
                     ),
@@ -470,12 +470,12 @@ class PlanDetailsScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Bank Transfer'),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Bank: First Bank\nAccount: 1234567890\nName: CareLink HMO'),
-            const SizedBox(height: 16),
-            const Text('Please make transfer and upload proof of payment'),
+            Text('Bank: First Bank\nAccount: 1234567890\nName: CareLink HMO'),
+            SizedBox(height: 16),
+            Text('Please make transfer and upload proof of payment'),
           ],
         ),
         actions: [

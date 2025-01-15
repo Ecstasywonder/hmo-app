@@ -148,12 +148,12 @@ class _FindHospitalScreenState extends State<FindHospitalScreen> {
                               Icon(Icons.star,
                                   size: 16, color: Colors.amber[700]),
                               const SizedBox(width: 4),
-                              Text('4.5'),
+                              const Text('4.5'),
                               const SizedBox(width: 16),
                               Icon(Icons.access_time,
                                   size: 16, color: Colors.grey[600]),
                               const SizedBox(width: 4),
-                              Text('Open'),
+                              const Text('Open'),
                               const Spacer(),
                               TextButton(
                                 onPressed: () {

@@ -385,11 +385,11 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
   }
 
   void _showRecordTemplate(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-    String? _selectedType;
-    final _descriptionController = TextEditingController();
-    final _doctorController = TextEditingController();
-    DateTime? _recordDate;
+    final formKey = GlobalKey<FormState>();
+    String? selectedType;
+    final descriptionController = TextEditingController();
+    final doctorController = TextEditingController();
+    DateTime? recordDate;
 
     showModalBottomSheet(
       context: context,
@@ -401,7 +401,7 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +416,7 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
                     labelText: 'Record Type',
                     border: OutlineInputBorder(),
                   ),
-                  value: _selectedType,
+                  value: selectedType,
                   items: [
                     'Lab Results',
                     'Prescription',
@@ -435,11 +435,11 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
                     child: Text(type),
                   )).toList(),
                   validator: (value) => value == null ? 'Please select a type' : null,
-                  onChanged: (value) => _selectedType = value,
+                  onChanged: (value) => selectedType = value,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _descriptionController,
+                  controller: descriptionController,
                   decoration: const InputDecoration(
                     labelText: 'Description',
                     border: OutlineInputBorder(),
@@ -451,7 +451,7 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _doctorController,
+                  controller: doctorController,
                   decoration: const InputDecoration(
                     labelText: 'Doctor/Hospital',
                     border: OutlineInputBorder(),
@@ -468,7 +468,7 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
                   ),
                   readOnly: true,
                   controller: TextEditingController(
-                    text: _recordDate?.toString().split(' ')[0] ?? '',
+                    text: recordDate?.toString().split(' ')[0] ?? '',
                   ),
                   onTap: () async {
                     final date = await showDatePicker(
@@ -478,10 +478,10 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
                       lastDate: DateTime.now(),
                     );
                     if (date != null) {
-                      _recordDate = date;
+                      recordDate = date;
                     }
                   },
-                  validator: (value) => _recordDate == null 
+                  validator: (value) => recordDate == null 
                       ? 'Please select a date' 
                       : null,
                 ),
@@ -491,14 +491,14 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
+                          if (formKey.currentState?.validate() ?? false) {
                             // Add record with pending verification status
                             setState(() {
                               _records.add({
-                                'type': _selectedType,
-                                'description': _descriptionController.text,
-                                'doctor': _doctorController.text,
-                                'date': _recordDate.toString().split(' ')[0],
+                                'type': selectedType,
+                                'description': descriptionController.text,
+                                'doctor': doctorController.text,
+                                'date': recordDate.toString().split(' ')[0],
                                 'status': 'Pending Verification',
                                 'details': {},
                                 'attachments': [],
@@ -515,10 +515,10 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
                               message: 'A new medical record needs verification',
                               type: 'record_verification',
                               data: {
-                                'type': _selectedType,
-                                'description': _descriptionController.text,
-                                'doctor': _doctorController.text,
-                                'date': _recordDate.toString().split(' ')[0],
+                                'type': selectedType,
+                                'description': descriptionController.text,
+                                'doctor': doctorController.text,
+                                'date': recordDate.toString().split(' ')[0],
                                 'status': 'Pending Verification',
                                 'details': {},
                                 'attachments': [],
@@ -559,15 +559,15 @@ class _UserMedicalRecordsScreenState extends State<UserMedicalRecordsScreen> {
               children: [
                 Text('Selected file: ${file.name}'),
                 const SizedBox(height: 16),
-                TextField(
-                  decoration: const InputDecoration(
+                const TextField(
+                  decoration: InputDecoration(
                     labelText: 'Document Type',
                     border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  decoration: const InputDecoration(
+                const TextField(
+                  decoration: InputDecoration(
                     labelText: 'Notes',
                     border: OutlineInputBorder(),
                   ),

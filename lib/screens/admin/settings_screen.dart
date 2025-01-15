@@ -13,8 +13,8 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _emailNotifications = true;
   bool _pushNotifications = true;
-  String _selectedLanguage = 'English';
-  String _selectedTheme = 'Light';
+  final String _selectedLanguage = 'English';
+  final String _selectedTheme = 'Light';
 
   @override
   Widget build(BuildContext context) {

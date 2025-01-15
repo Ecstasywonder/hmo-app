@@ -13,11 +13,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _notificationsEnabled = true;
+  final bool _notificationsEnabled = true;
   String _selectedLanguage = 'English';
   
   // Sample user data - replace with actual user data
-  Map<String, dynamic> _userData = {
+  final Map<String, dynamic> _userData = {
     'name': 'John Doe',
     'email': 'john.doe@example.com',
     'phone': '+1 234 567 890',

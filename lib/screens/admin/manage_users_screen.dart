@@ -129,7 +129,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 ],
               ),
             ),
-            PopupMenuItem(
+            const PopupMenuItem(
               value: 'status',
               child: Row(
                 children: [

@@ -136,7 +136,7 @@ class HomeScreen extends StatelessWidget {
                           onPressed: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PlanDetailsScreen(
+                              builder: (context) => const PlanDetailsScreen(
                                 plan: {
                                   'name': 'Premium Health Plan',
                                   'price': '45000',
@@ -333,7 +333,7 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PlanComparisonScreen(
+                    builder: (context) => const PlanComparisonScreen(
                       plans: [
                         {
                           'name': 'Basic',

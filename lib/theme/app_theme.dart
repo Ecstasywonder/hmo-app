@@ -57,11 +57,11 @@ class AppTheme {
     brightness: Brightness.dark,
     primarySwatch: Colors.blue,
     scaffoldBackgroundColor: _darkBackgroundColor,
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      iconTheme: const IconThemeData(color: _darkIconColor),
-      titleTextStyle: const TextStyle(
+      iconTheme: IconThemeData(color: _darkIconColor),
+      titleTextStyle: TextStyle(
         color: _darkTextColor,
         fontSize: 20,
         fontWeight: FontWeight.bold,
