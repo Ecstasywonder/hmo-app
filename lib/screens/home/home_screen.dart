@@ -7,6 +7,8 @@ import 'package:hmo_app/screens/plans/plan_details_screen.dart';
 import 'package:hmo_app/screens/notifications/notifications_screen.dart';
 import 'package:hmo_app/screens/profile/profile_screen.dart';
 import 'package:hmo_app/screens/providers/hmo_providers_screen.dart';
+import 'package:hmo_app/screens/plans/plan_comparison_screen.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -101,6 +103,13 @@ class HomeScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => const SupportScreen()),
                   ),
                 ),
+                ListTile(
+                  leading: const Icon(Icons.medical_information),
+                  title: const Text('Medical Records'),
+                  subtitle: const Text('View your health records'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.pushNamed(context, '/medical-records'),
+                ),
               ],
             ),
             
@@ -126,7 +135,17 @@ class HomeScreen extends StatelessWidget {
                         TextButton(
                           onPressed: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const PlanDetailsScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => PlanDetailsScreen(
+                                plan: {
+                                  'name': 'Premium Health Plan',
+                                  'price': '45000',
+                                  'coverage': 'Full Coverage',
+                                  'rating': '4.8',
+                                  'subscribers': '10K+',
+                                },
+                              ),
+                            ),
                           ),
                           child: const Text('View Details'),
                         ),
@@ -311,9 +330,33 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               OutlinedButton(
-                onPressed: () {
-                  // Handle compare plans
-                },
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PlanComparisonScreen(
+                      plans: [
+                        {
+                          'name': 'Basic',
+                          'price': '25000',
+                          'coverage': '60%',
+                          'features': ['4 visits/year', 'Basic Coverage'],
+                        },
+                        {
+                          'name': 'Standard',
+                          'price': '45000',
+                          'coverage': '80%',
+                          'features': ['8 visits/year', 'Enhanced Coverage'],
+                        },
+                        {
+                          'name': 'Premium',
+                          'price': '65000',
+                          'coverage': '100%',
+                          'features': ['Unlimited visits', 'Full Coverage'],
+                        },
+                      ],
+                    ),
+                  ),
+                ),
                 child: const Text('Compare Plans'),
               ),
             ],

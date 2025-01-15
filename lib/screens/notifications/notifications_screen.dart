@@ -18,7 +18,7 @@ class NotificationsScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: 10, // Replace with actual notifications count
+        itemCount: 10,
         itemBuilder: (context, index) {
           return _buildNotificationItem(
             context,
@@ -33,6 +33,7 @@ class NotificationsScreen extends StatelessWidget {
     IconData icon;
     String title;
     String message;
+    String fullDetails;
     Color color;
 
     switch (type) {
@@ -40,18 +41,49 @@ class NotificationsScreen extends StatelessWidget {
         icon = Icons.calendar_today;
         title = 'Appointment Reminder';
         message = 'Your appointment is scheduled for tomorrow at 10:00 AM';
+        fullDetails = '''
+Dr. Sarah Johnson
+Department: Cardiology
+Location: Main Hospital, Floor 3
+Room: 304
+
+Please arrive 15 minutes early to complete registration.
+Bring your health card and any recent test results.
+
+Need to reschedule? Call (555) 123-4567''';
         color = Colors.blue;
         break;
       case 'plan':
         icon = Icons.health_and_safety;
         title = 'Plan Update';
         message = 'Your health plan coverage has been updated';
+        fullDetails = '''
+Your Premium Health Plan has been updated with the following changes:
+
+• Added dental coverage
+• Increased prescription coverage limit
+• New wellness program benefits
+• International coverage now included
+
+These changes are effective from next month.
+View your updated plan details in My Plan section.''';
         color = Theme.of(context).primaryColor;
         break;
       default:
         icon = Icons.notifications;
         title = 'Important Notice';
         message = 'New features available in the app';
+        fullDetails = '''
+We've added exciting new features to improve your experience:
+
+• Virtual consultations
+• Digital health records
+• Medication reminders
+• Wellness tracking
+• Enhanced security
+
+Update your app to access these features.
+Learn more in the Help section.''';
         color = Colors.orange;
     }
 
@@ -79,9 +111,92 @@ class NotificationsScreen extends StatelessWidget {
             fontSize: 12,
           ),
         ),
-        onTap: () {
-          // Handle notification tap
-        },
+        onTap: () => _showNotificationDetails(
+          context,
+          title,
+          fullDetails,
+          color,
+          icon,
+        ),
+      ),
+    );
+  }
+
+  void _showNotificationDetails(
+    BuildContext context,
+    String title,
+    String details,
+    Color color,
+    IconData icon,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(
+                  details,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: color,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('Close'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

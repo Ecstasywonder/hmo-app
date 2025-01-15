@@ -6,6 +6,8 @@ import 'package:hmo_app/screens/admin/reports_screen.dart';
 import 'package:hmo_app/screens/admin/settings_screen.dart';
 import 'package:hmo_app/screens/admin/manage_users_screen.dart';
 import 'package:hmo_app/services/auth_service.dart';
+import 'package:hmo_app/services/admin_notification_service.dart';
+import 'package:hmo_app/screens/admin/admin_notifications_screen.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -20,6 +22,46 @@ class AdminDashboard extends StatelessWidget {
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AdminNotificationsScreen(),
+                  ),
+                ),
+              ),
+              Consumer<AdminNotificationService>(
+                builder: (context, service, _) => service.unreadCount > 0
+                    ? Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '${service.unreadCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.black87),
             onPressed: () {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hmo_app/screens/plans/plan_details_screen.dart';
 
 class HmoProvidersScreen extends StatefulWidget {
   const HmoProvidersScreen({super.key});
@@ -209,7 +210,20 @@ class _HmoProvidersScreenState extends State<HmoProvidersScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Handle view plans
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PlanDetailsScreen(
+                            plan: {
+                              'name': name,
+                              'price': price.replaceAll('₦', '').replaceAll('/year', ''),
+                              'coverage': coverage,
+                              'rating': rating,
+                              'subscribers': subscribers,
+                            },
+                          ),
+                        ),
+                      );
                     },
                     child: const Text('View Plans'),
                   ),

@@ -3,9 +3,22 @@ import 'package:hmo_app/screens/support/claims_screen.dart';
 import 'package:hmo_app/screens/support/coverage_screen.dart';
 import 'package:hmo_app/screens/support/contact_screen.dart';
 import 'package:hmo_app/screens/support/faq_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      throw 'Could not launch $launchUri';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,9 +143,7 @@ class SupportScreen extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.phone),
                       color: Theme.of(context).primaryColor,
-                      onPressed: () {
-                        // Handle emergency call
-                      },
+                      onPressed: () => _makePhoneCall('1234567890'),
                     ),
                   ],
                 ),

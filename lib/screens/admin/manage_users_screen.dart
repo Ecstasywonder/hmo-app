@@ -11,7 +11,7 @@ class ManageUsersScreen extends StatefulWidget {
 
 class _ManageUsersScreenState extends State<ManageUsersScreen> {
   final TextEditingController _searchController = TextEditingController();
-  
+
   final List<Map<String, dynamic>> _users = [
     {
       'name': 'John Doe',
@@ -35,7 +35,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Users', 
+        title: const Text('Manage Users',
             style: TextStyle(color: Colors.black87)),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -49,14 +49,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search users...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search users...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
               onChanged: (value) => setState(() {}),
             ),
           ),
@@ -118,51 +118,51 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   ),
                 ),
                 PopupMenuButton(
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit),
-                          SizedBox(width: 8),
-                          Text('Edit'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'status',
-                      child: Row(
-                        children: [
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'edit',
+              child: Row(
+                children: [
+                  Icon(Icons.edit),
+                  SizedBox(width: 8),
+                  Text('Edit'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'status',
+              child: Row(
+                children: [
                           Icon(Icons.power_settings_new),
                           SizedBox(width: 8),
                           Text('Toggle Status'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
+                ],
+              ),
+            ),
+            const PopupMenuItem(
                       value: 'reset',
-                      child: Row(
-                        children: [
+              child: Row(
+                children: [
                           Icon(Icons.lock_reset),
-                          SizedBox(width: 8),
+                  SizedBox(width: 8),
                           Text('Reset Password'),
-                        ],
-                      ),
-                    ),
-                  ],
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'edit':
-                        _showEditUserDialog(user);
-                        break;
-                      case 'status':
-                        _toggleUserStatus(user);
-                        break;
+                ],
+              ),
+            ),
+          ],
+          onSelected: (value) {
+            switch (value) {
+              case 'edit':
+                _showEditUserDialog(user);
+                break;
+              case 'status':
+                _toggleUserStatus(user);
+                break;
                       case 'reset':
                         _resetUserPassword(user);
-                        break;
-                    }
-                  },
+                break;
+            }
+          },
                 ),
               ],
             ),
