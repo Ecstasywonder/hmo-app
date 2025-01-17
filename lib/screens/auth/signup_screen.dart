@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hmo_app/screens/auth/signup_screen.dart';
+import 'package:hmo_app/screens/home/home_screen.dart';
+import 'package:hmo_app/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});

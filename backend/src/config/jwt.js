@@ -1,26 +1,10 @@
-const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
-
-const generateToken = (user) => {
-  return jwt.sign(
-    { 
-      id: user.id,
-      email: user.email,
-      role: user.role 
-    },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
-  );
-};
-
-const verifyToken = (token) => {
-  return jwt.verify(token, JWT_SECRET);
-};
+require('dotenv').config();
 
 module.exports = {
-  generateToken,
-  verifyToken,
-  JWT_SECRET
+  JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key',
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key',
+  JWT_ACCESS_EXPIRATION: process.env.JWT_ACCESS_EXPIRATION || '15m',
+  JWT_REFRESH_EXPIRATION: process.env.JWT_REFRESH_EXPIRATION || '7d',
+  JWT_RESET_PASSWORD_EXPIRATION: process.env.JWT_RESET_PASSWORD_EXPIRATION || '1h',
+  JWT_VERIFY_EMAIL_EXPIRATION: process.env.JWT_VERIFY_EMAIL_EXPIRATION || '24h'
 }; 

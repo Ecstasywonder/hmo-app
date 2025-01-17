@@ -220,6 +220,13 @@ class HomeScreen extends StatelessWidget {
                         '₦42,000/year',
                         () {},
                       ),
+                       _buildHmoProviderCard(
+                        context,
+                        'Optimus MediCare HMO',
+                        '4.7',
+                        '₦72,000/year',
+                        () {},
+                      ),
                     ],
                   ),
                 ),

@@ -1,180 +1,228 @@
-const { User } = require('../models');
-const { generateToken } = require('../config/jwt');
-const { validateLogin, validateRegistration } = require('../validation/auth.validation');
-const crypto = require('crypto');
-const emailService = require('../services/email.service');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { User, RefreshToken } = require('../models');
+const { JWT_SECRET, JWT_REFRESH_SECRET } = require('../config/jwt');
+const securityService = require('../services/security.service');
+const { v4: uuidv4 } = require('uuid');
+const { Op } = require('sequelize');
 
-const register = async (req, res) => {
+const generateTokens = (userId) => {
+  const accessToken = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '15m' });
+  const refreshToken = jwt.sign({ userId, tokenId: uuidv4() }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+  return { accessToken, refreshToken };
+};
+
+exports.register = async (req, res) => {
   try {
-    // Validate input
-    const { error } = validateRegistration(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+    const { name, email, password } = req.body;
+
+    // Check if user already exists
+    let user = await User.findOne({ where: { email } });
+    if (user) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Check if user exists
-    const existingUser = await User.findOne({ where: { email: req.body.email } });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email already registered' });
-    }
-
-    // Create user
-    const user = await User.create({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: req.body.password,
-      phoneNumber: req.body.phoneNumber
+    // Create new user
+    user = await User.create({
+      name,
+      email,
+      password: await bcrypt.hash(password, 10)
     });
 
-    // Generate token
-    const token = generateToken(user);
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    // Save refresh token
+    await RefreshToken.create({
+      userId: user.id,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
 
     res.status(201).json({
-      message: 'Registration successful',
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role
+        name: user.name,
+        email: user.email
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-const login = async (req, res) => {
+exports.login = async (req, res) => {
   try {
-    // Validate input
-    const { error } = validateLogin(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Find user
-    const user = await User.findOne({ where: { email: req.body.email } });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+    // Check if account is locked
+    if (user.isLocked && user.lockedUntil > new Date()) {
+      return res.status(403).json({ 
+        message: 'Account is locked. Please try again later',
+        lockedUntil: user.lockedUntil
+      });
     }
 
     // Verify password
-    const isValidPassword = await user.comparePassword(req.body.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      // Log failed attempt
+      await securityService.logLoginAttempt(user.id, false, req.ip, req.get('user-agent'));
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Update last login
-    await user.update({ lastLogin: new Date() });
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Generate token
-    const token = generateToken(user);
+    // Save refresh token
+    await RefreshToken.create({
+      userId: user.id,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
+
+    // Log successful attempt
+    await securityService.logLoginAttempt(user.id, true, req.ip, req.get('user-agent'));
 
     res.json({
-      message: 'Login successful',
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        isEmailVerified: user.isEmailVerified
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-const forgotPassword = async (req, res) => {
+exports.refreshToken = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ where: { email } });
-    
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ message: 'Refresh token is required' });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+
+    // Check if refresh token exists and is valid
+    const savedToken = await RefreshToken.findOne({
+      where: {
+        token: refreshToken,
+        isRevoked: false,
+        expiresAt: { [Op.gt]: new Date() }
+      }
+    });
+
+    if (!savedToken) {
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
+
+    // Generate new tokens
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = generateTokens(decoded.userId);
+
+    // Revoke old refresh token
+    await savedToken.update({ isRevoked: true });
+
+    // Save new refresh token
+    await RefreshToken.create({
+      userId: decoded.userId,
+      token: newRefreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
+
+    res.json({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken
+    });
+  } catch (error) {
+    console.error(error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      // Revoke refresh token
+      await RefreshToken.update(
+        { isRevoked: true },
+        { where: { token: refreshToken } }
+      );
+    }
+
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ['password'] }
+    });
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+    const user = await User.findByPk(req.user.id);
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
+    // Update user fields
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.phone = phone || user.phone;
 
-    await user.update({
-      resetPasswordToken: resetToken,
-      resetPasswordExpires
-    });
+    await user.save();
 
-    // Send reset email
-    await emailService.sendPasswordResetEmail(user, resetToken);
-
-    res.json({ message: 'Password reset email sent' });
-  } catch (error) {
-    console.error('Forgot password error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-const resetPassword = async (req, res) => {
-  try {
-    const { token, newPassword } = req.body;
-    
-    const user = await User.findOne({
-      where: {
-        resetPasswordToken: token,
-        resetPasswordExpires: { [Op.gt]: new Date() }
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone
       }
     });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired reset token' });
-    }
-
-    // Update password and clear reset token
-    await user.update({
-      password: newPassword,
-      resetPasswordToken: null,
-      resetPasswordExpires: null
-    });
-
-    res.json({ message: 'Password reset successful' });
   } catch (error) {
-    console.error('Reset password error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
-};
-
-const verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.params;
-    
-    const user = await User.findOne({
-      where: { verificationToken: token }
-    });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid verification token' });
-    }
-
-    await user.update({
-      emailVerified: true,
-      verificationToken: null
-    });
-
-    res.json({ message: 'Email verified successfully' });
-  } catch (error) {
-    console.error('Email verification error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-module.exports = {
-  register,
-  login,
-  forgotPassword,
-  resetPassword,
-  verifyEmail
 }; 
