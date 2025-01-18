@@ -1,210 +1,88 @@
-const { Hospital, Appointment, User } = require('../models');
-const { Op } = require('sequelize');
+const hospitalService = require('../services/hospital.service');
+const { catchAsync } = require('../utils/error');
 
-exports.getAllHospitals = async (req, res) => {
-  try {
-    const hospitals = await Hospital.findAll({
-      where: { isActive: true },
-      attributes: ['id', 'name', 'address', 'phone', 'email', 'specialties']
+class HospitalController {
+  searchHospitals = catchAsync(async (req, res) => {
+    const filters = {
+      name: req.query.name,
+      city: req.query.city,
+      state: req.query.state,
+      specialty: req.query.specialty,
+      rating: req.query.rating,
+      planId: req.query.planId,
+      page: req.query.page,
+      limit: req.query.limit
+    };
+
+    const result = await hospitalService.searchHospitals(filters);
+    res.json({
+      success: true,
+      data: result.hospitals,
+      pagination: result.pagination
     });
-    res.json(hospitals);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
 
-exports.getHospitalById = async (req, res) => {
-  try {
-    const hospital = await Hospital.findOne({
-      where: { id: req.params.id, isActive: true }
+  getHospitalDetails = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const hospital = await hospitalService.getHospitalDetails(id);
+    res.json({
+      success: true,
+      data: hospital
     });
-    
-    if (!hospital) {
-      return res.status(404).json({ message: 'Hospital not found' });
-    }
-    
-    res.json(hospital);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
 
-exports.searchHospitals = async (req, res) => {
-  try {
-    const { query, specialty, location } = req.query;
-    const whereClause = { isActive: true };
+  getHospitalSchedule = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const date = req.query.date ? new Date(req.query.date) : new Date();
 
-    if (query) {
-      whereClause.name = { [Op.iLike]: `%${query}%` };
+    if (isNaN(date.getTime())) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid date format'
+      });
     }
 
-    if (specialty) {
-      whereClause.specialties = { [Op.contains]: [specialty] };
-    }
-
-    if (location) {
-      whereClause.address = { [Op.iLike]: `%${location}%` };
-    }
-
-    const hospitals = await Hospital.findAll({ where: whereClause });
-    res.json(hospitals);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.createHospital = async (req, res) => {
-  try {
-    const { name, address, phone, email, specialties } = req.body;
-    const hospital = await Hospital.create({
-      name,
-      address,
-      phone,
-      email,
-      specialties,
-      isActive: true
+    const schedule = await hospitalService.getHospitalSchedule(id, date);
+    res.json({
+      success: true,
+      data: schedule
     });
-    res.status(201).json(hospital);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
 
-exports.updateHospital = async (req, res) => {
-  try {
-    const hospital = await Hospital.findByPk(req.params.id);
-    if (!hospital) {
-      return res.status(404).json({ message: 'Hospital not found' });
-    }
+  getHospitalReviews = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { page, limit } = req.query;
 
-    const { name, address, phone, email, specialties, isActive } = req.body;
-    
-    // Update hospital fields
-    hospital.name = name || hospital.name;
-    hospital.address = address || hospital.address;
-    hospital.phone = phone || hospital.phone;
-    hospital.email = email || hospital.email;
-    hospital.specialties = specialties || hospital.specialties;
-    hospital.isActive = isActive !== undefined ? isActive : hospital.isActive;
+    const result = await hospitalService.getHospitalReviews(id, page, limit);
+    res.json({
+      success: true,
+      data: result.reviews,
+      pagination: result.pagination
+    });
+  });
 
-    await hospital.save();
-    res.json(hospital);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.deleteHospital = async (req, res) => {
-  try {
-    const hospital = await Hospital.findByPk(req.params.id);
-    if (!hospital) {
-      return res.status(404).json({ message: 'Hospital not found' });
-    }
-
-    // Soft delete
-    hospital.isActive = false;
-    await hospital.save();
-    
-    res.json({ message: 'Hospital deleted successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.bookAppointment = async (req, res) => {
-  try {
-    const { hospitalId } = req.params;
-    const { date, time, reason } = req.body;
+  addHospitalReview = catchAsync(async (req, res) => {
+    const { id } = req.params;
     const userId = req.user.id;
+    const { rating, comment } = req.body;
 
-    // Check if hospital exists and is active
-    const hospital = await Hospital.findOne({
-      where: { id: hospitalId, isActive: true }
-    });
-
-    if (!hospital) {
-      return res.status(404).json({ message: 'Hospital not found or inactive' });
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        error: 'Rating must be between 1 and 5'
+      });
     }
 
-    // Create appointment
-    const appointment = await Appointment.create({
-      userId,
-      hospitalId,
-      date,
-      time,
-      reason,
-      status: 'pending'
+    const review = await hospitalService.addHospitalReview(id, userId, {
+      rating,
+      comment
     });
 
     res.status(201).json({
-      message: 'Appointment booked successfully',
-      appointment
+      success: true,
+      data: review
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
+}
 
-exports.getUserAppointments = async (req, res) => {
-  try {
-    const appointments = await Appointment.findAll({
-      where: { userId: req.user.id },
-      include: [{
-        model: Hospital,
-        attributes: ['name', 'address', 'phone']
-      }],
-      order: [['date', 'DESC']]
-    });
-    res.json(appointments);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.getHospitalAppointments = async (req, res) => {
-  try {
-    const appointments = await Appointment.findAll({
-      where: { hospitalId: req.params.hospitalId },
-      include: [{
-        model: User,
-        attributes: ['name', 'email', 'phone']
-      }],
-      order: [['date', 'ASC']]
-    });
-    res.json(appointments);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.updateAppointmentStatus = async (req, res) => {
-  try {
-    const { appointmentId } = req.params;
-    const { status } = req.body;
-
-    const appointment = await Appointment.findByPk(appointmentId);
-    if (!appointment) {
-      return res.status(404).json({ message: 'Appointment not found' });
-    }
-
-    appointment.status = status;
-    await appointment.save();
-
-    res.json({
-      message: 'Appointment status updated successfully',
-      appointment
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-}; 
+module.exports = new HospitalController(); 

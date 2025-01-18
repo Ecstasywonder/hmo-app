@@ -1,116 +1,201 @@
 import 'package:flutter/material.dart';
+import '../../widgets/loading_widget.dart';
+import '../../widgets/empty_state_widget.dart';
 
-class FaqScreen extends StatelessWidget {
-  const FaqScreen({super.key});
+class FAQScreen extends StatefulWidget {
+  const FAQScreen({Key? key}) : super(key: key);
 
-  final List<Map<String, String>> faqs = const [
-    {
-      'question': 'How do I make a claim?',
-      'answer':
-          'To make a claim, go to the Claims section in the app and fill out the claim form. You\'ll need to provide details about the service and upload relevant documents.',
-    },
-    {
-      'question': 'What hospitals are covered under my plan?',
-      'answer':
-          'You can view all covered hospitals in the Find Hospital section. Your Premium Health Plan covers all major hospitals in our network.',
-    },
-    {
-      'question': 'How do I book an appointment?',
-      'answer':
-          'Use the Book Appointment feature in the app to schedule appointments with doctors and specialists in our network.',
-    },
-    {
-      'question': 'What is the waiting period for new members?',
-      'answer':
-          'The standard waiting period is 30 days for new members. However, emergency services are covered immediately.',
-    },
-    {
-      'question': 'How do I add dependents to my plan?',
-      'answer':
-          'You can add dependents through your profile settings. Additional charges may apply based on your plan type.',
-    },
-    {
-      'question': 'What is not covered by my plan?',
-      'answer':
-          'Certain cosmetic procedures, experimental treatments, and non-medical services are not covered. Check your plan details for full information.',
-    },
-    {
-      'question': 'How do I renew my plan?',
-      'answer':
-          'Plans are automatically renewed annually. You\'ll receive a notification 30 days before renewal.',
-    },
-    {
-      'question': 'What should I do in an emergency?',
-      'answer':
-          'In case of emergency, visit the nearest hospital and call our 24/7 emergency line at 0800-CARELINK.',
-    },
+  @override
+  _FAQScreenState createState() => _FAQScreenState();
+}
+
+class _FAQScreenState extends State<FAQScreen> {
+  final _searchController = TextEditingController();
+  String _selectedCategory = 'All';
+  List<String> _categories = [
+    'All',
+    'General',
+    'Plans & Coverage',
+    'Claims',
+    'Providers',
+    'Billing',
+    'Technical Support',
   ];
+
+  // This would typically come from an API
+  final List<Map<String, dynamic>> _faqs = [
+    {
+      'category': 'General',
+      'question': 'What is HMO insurance?',
+      'answer':
+          'HMO (Health Maintenance Organization) insurance is a type of healthcare coverage that typically requires you to select a primary care physician and get referrals to see specialists. HMOs generally have lower out-of-pocket costs but require you to use providers within their network.',
+    },
+    {
+      'category': 'Plans & Coverage',
+      'question': 'How do I know what services are covered?',
+      'answer':
+          'Your covered services are detailed in your plan documents. You can also log into your member portal to view your benefits summary or contact our customer service team for specific coverage questions.',
+    },
+    {
+      'category': 'Claims',
+      'question': 'How do I submit a claim?',
+      'answer':
+          'Most claims are submitted directly by your healthcare provider. If you need to submit a claim yourself, you can do so through the member portal or by completing a claim form and mailing it to our claims department.',
+    },
+    // Add more FAQs here
+  ];
+
+  List<Map<String, dynamic>> get _filteredFaqs {
+    final searchTerm = _searchController.text.toLowerCase();
+    return _faqs.where((faq) {
+      final matchesCategory =
+          _selectedCategory == 'All' || faq['category'] == _selectedCategory;
+      final matchesSearch = searchTerm.isEmpty ||
+          faq['question'].toLowerCase().contains(searchTerm) ||
+          faq['answer'].toLowerCase().contains(searchTerm);
+      return matchesCategory && matchesSearch;
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FAQs',
-            style: TextStyle(color: Colors.black87)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: const Text('FAQs'),
       ),
       body: Column(
         children: [
-          // Search Bar
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search FAQs...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  onChanged: (_) => setState(() {}),
                 ),
-              ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 40,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _categories.length,
+                    itemBuilder: (context, index) {
+                      final category = _categories[index];
+                      final isSelected = category == _selectedCategory;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          label: Text(category),
+                          selected: isSelected,
+                          onSelected: (_) {
+                            setState(() => _selectedCategory = category);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
-
-          // FAQ List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: faqs.length,
+            child: _filteredFaqs.isEmpty
+                ? const EmptyStateWidget(
+                    icon: Icons.help_outline,
+                    title: 'No FAQs Found',
+                    message:
+                        'Try adjusting your search or category to find relevant FAQs.',
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _filteredFaqs.length,
               itemBuilder: (context, index) {
+                      final faq = _filteredFaqs[index];
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
+                        margin: const EdgeInsets.only(bottom: 16),
                     child: ExpansionTile(
                       title: Text(
-                        faqs[index]['question']!,
+                            faq['question'],
                         style: const TextStyle(
-                          fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text(
+                            faq['category'],
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
                         ),
                       ),
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            faqs[index]['answer']!,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                            ),
-                          ),
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(faq['answer']),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      TextButton.icon(
+                                        icon: const Icon(Icons.thumb_up_outlined),
+                                        label: const Text('Helpful'),
+                                        onPressed: () {
+                                          // TODO: Implement feedback
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Thank you for your feedback!'),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      TextButton.icon(
+                                        icon: const Icon(Icons.share),
+                                        label: const Text('Share'),
+                                        onPressed: () {
+                                          // TODO: Implement sharing
+                                        },
+                                      ),
+                                    ],
                         ),
                       ],
                     ),
+                            ),
+                          ],
                   ),
                 );
               },
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/support/ticket', arguments: {
+            'type': 'question',
+            'subject': 'FAQ Question',
+          });
+        },
+        icon: const Icon(Icons.help_outline),
+        label: const Text('Ask a Question'),
       ),
     );
   }

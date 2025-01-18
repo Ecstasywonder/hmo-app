@@ -39,7 +39,7 @@ exports.validateAuth = async (req, res, next) => {
 
       // Add user to request
       req.user = user;
-      next();
+    next();
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
         return res.status(401).json({ message: 'Token has expired' });
@@ -59,8 +59,8 @@ exports.validateAdmin = async (req, res, next) => {
       // Check if user is admin
       if (req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Access denied. Admin only.' });
-      }
-      next();
+    }
+    next();
     });
   } catch (error) {
     console.error('Admin validation error:', error);

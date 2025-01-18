@@ -1,7 +1,9 @@
-const { DataTypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-module.exports = (sequelize) => {
-  const Plan = sequelize.define('Plan', {
+class Plan extends Model {}
+
+Plan.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -10,9 +12,7 @@ module.exports = (sequelize) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        notEmpty: true
-      }
+    unique: true
     },
     description: {
       type: DataTypes.TEXT,
@@ -22,30 +22,64 @@ module.exports = (sequelize) => {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
-    duration: {
-      type: DataTypes.INTEGER, // in months
+  interval: {
+    type: DataTypes.ENUM('monthly', 'quarterly', 'annually'),
+    defaultValue: 'annually'
+  },
+  coverage: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  maxBenefitAmount: {
+    type: DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
+  waitingPeriod: {
+    type: DataTypes.INTEGER, // in days
+    defaultValue: 0
+  },
     features: {
-      type: DataTypes.JSONB,
+    type: DataTypes.JSON,
+    defaultValue: []
+  },
+  benefits: {
+    type: DataTypes.JSON,
+    defaultValue: {}
+  },
+  exclusions: {
+    type: DataTypes.JSON,
       defaultValue: []
     },
-    coverage: {
-      type: DataTypes.JSONB,
-      allowNull: false
+  rating: {
+    type: DataTypes.DECIMAL(2, 1),
+    defaultValue: 0
+  },
+  subscribers: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
     },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
-    }
-  });
+  },
+  isPopular: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  order: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
+  metadata: {
+    type: DataTypes.JSON,
+    defaultValue: {}
+  }
+}, {
+  sequelize,
+  modelName: 'Plan',
+  tableName: 'plans',
+  timestamps: true,
+  paranoid: true // Enable soft deletes
+});
 
-  Plan.associate = (models) => {
-    Plan.hasMany(models.Subscription, {
-      foreignKey: 'planId',
-      as: 'subscriptions'
-    });
-  };
-
-  return Plan;
-}; 
+module.exports = Plan; 

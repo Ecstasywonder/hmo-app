@@ -1,139 +1,82 @@
-const { Plan, User, Subscription } = require('../models');
+const planService = require('../services/plan.service');
+const { catchAsync } = require('../utils/error');
 
-exports.getAllPlans = async (req, res) => {
-  try {
-    const plans = await Plan.findAll({
-      where: { isActive: true },
-      attributes: ['id', 'name', 'description', 'price', 'duration', 'benefits']
+class PlanController {
+  getAllPlans = catchAsync(async (req, res) => {
+    const filters = {
+      minPrice: req.query.minPrice,
+      maxPrice: req.query.maxPrice,
+      coverage: req.query.coverage
+    };
+
+    const plans = await planService.getAllPlans(filters);
+    res.json({
+      success: true,
+      data: plans
     });
-    res.json(plans);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
 
-exports.getPlanById = async (req, res) => {
-  try {
-    const plan = await Plan.findByPk(req.params.id);
-    if (!plan) {
-      return res.status(404).json({ message: 'Plan not found' });
-    }
-    res.json(plan);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.createPlan = async (req, res) => {
-  try {
-    const { name, description, price, duration, benefits } = req.body;
-    const plan = await Plan.create({
-      name,
-      description,
-      price,
-      duration,
-      benefits,
-      isActive: true
+  getPlanById = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const plan = await planService.getPlanById(id);
+    res.json({
+      success: true,
+      data: plan
     });
-    res.status(201).json(plan);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
 
-exports.updatePlan = async (req, res) => {
-  try {
-    const plan = await Plan.findByPk(req.params.id);
-    if (!plan) {
-      return res.status(404).json({ message: 'Plan not found' });
+  comparePlans = catchAsync(async (req, res) => {
+    const { planIds } = req.body;
+    
+    if (!planIds || !Array.isArray(planIds) || planIds.length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide at least two plan IDs for comparison'
+      });
     }
 
-    const { name, description, price, duration, benefits, isActive } = req.body;
-    
-    // Update plan fields
-    plan.name = name || plan.name;
-    plan.description = description || plan.description;
-    plan.price = price || plan.price;
-    plan.duration = duration || plan.duration;
-    plan.benefits = benefits || plan.benefits;
-    plan.isActive = isActive !== undefined ? isActive : plan.isActive;
+    const comparisonData = await planService.comparePlans(planIds);
+    res.json({
+      success: true,
+      data: comparisonData
+    });
+  });
 
-    await plan.save();
-    res.json(plan);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.deletePlan = async (req, res) => {
-  try {
-    const plan = await Plan.findByPk(req.params.id);
-    if (!plan) {
-      return res.status(404).json({ message: 'Plan not found' });
-    }
-
-    // Soft delete by setting isActive to false
-    plan.isActive = false;
-    await plan.save();
-    
-    res.json({ message: 'Plan deleted successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.subscribeToPlan = async (req, res) => {
-  try {
-    const { planId } = req.params;
+  subscribeToPlan = catchAsync(async (req, res) => {
     const userId = req.user.id;
+    const { planId, paymentDetails } = req.body;
 
-    // Check if plan exists and is active
-    const plan = await Plan.findOne({
-      where: { id: planId, isActive: true }
-    });
-
-    if (!plan) {
-      return res.status(404).json({ message: 'Plan not found or inactive' });
+    if (!planId || !paymentDetails) {
+      return res.status(400).json({
+        success: false,
+        error: 'Plan ID and payment details are required'
+      });
     }
 
-    // Check if user already has an active subscription to this plan
-    const existingSubscription = await Subscription.findOne({
-      where: {
-        userId,
-        planId,
-        status: 'active'
-      }
+    const subscription = await planService.subscribeToPlan(userId, planId, paymentDetails);
+    res.json({
+      success: true,
+      data: subscription
     });
+  });
 
-    if (existingSubscription) {
-      return res.status(400).json({ message: 'Already subscribed to this plan' });
-    }
-
-    // Create new subscription
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + plan.duration);
-
-    const subscription = await Subscription.create({
-      userId,
-      planId,
-      startDate,
-      endDate,
-      status: 'active',
-      amount: plan.price
+  getSubscriptionHistory = catchAsync(async (req, res) => {
+    const userId = req.user.id;
+    const history = await planService.getUserSubscriptionHistory(userId);
+    res.json({
+      success: true,
+      data: history
     });
+  });
 
-    res.status(201).json({
-      message: 'Successfully subscribed to plan',
-      subscription
+  getPlanBenefits = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const benefits = await planService.getPlanBenefits(id);
+    res.json({
+      success: true,
+      data: benefits
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-}; 
+  });
+}
+
+module.exports = new PlanController(); 

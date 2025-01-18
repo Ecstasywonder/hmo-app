@@ -1,45 +1,45 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
-const User = sequelize.define('User', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
-  },
+  const User = sequelize.define('User', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true
+    },
   name: {
-    type: DataTypes.STRING,
+      type: DataTypes.STRING,
     allowNull: false
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-    validate: {
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
       isEmail: true
-    }
-  },
-  password: {
-    type: DataTypes.STRING,
+      }
+    },
+    password: {
+      type: DataTypes.STRING,
     allowNull: false
   },
   phone: {
     type: DataTypes.STRING
-  },
-  role: {
+    },
+    role: {
     type: DataTypes.ENUM('user', 'admin', 'hospital_admin'),
-    defaultValue: 'user'
-  },
-  isActive: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
-  },
+      defaultValue: 'user'
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    },
   isEmailVerified: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },
   lastLoginAt: {
-    type: DataTypes.DATE
+      type: DataTypes.DATE
   },
   marketingEmails: {
     type: DataTypes.BOOLEAN,
@@ -68,9 +68,9 @@ const User = sequelize.define('User', {
   emergencyContact: {
     type: DataTypes.JSONB,
     defaultValue: {}
-  }
-}, {
-  timestamps: true,
+    }
+  }, {
+    timestamps: true,
   indexes: [
     {
       fields: ['email']

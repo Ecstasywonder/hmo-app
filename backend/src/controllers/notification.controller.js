@@ -1,207 +1,102 @@
-const { User, Notification } = require('../models');
-const { Op } = require('sequelize');
+const notificationService = require('../services/notification.service');
+const { catchAsync } = require('../utils/error');
 
-// User Notification Functions
-exports.getUserNotifications = async (req, res) => {
-  try {
-    const notifications = await Notification.findAll({
-      where: { userId: req.user.id },
-      order: [['createdAt', 'DESC']],
-      limit: 50
+class NotificationController {
+  getNotifications = catchAsync(async (req, res) => {
+    const userId = req.user.id;
+    const filters = {
+      read: req.query.read === 'true',
+      type: req.query.type,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate,
+      page: req.query.page,
+      limit: req.query.limit
+    };
+
+    const result = await notificationService.getUserNotifications(userId, filters);
+    res.json({
+      success: true,
+      data: result.notifications,
+      pagination: result.pagination
     });
-    res.json(notifications);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
 
-exports.getUnreadNotifications = async (req, res) => {
-  try {
-    const notifications = await Notification.findAll({
-      where: {
-        userId: req.user.id,
-        isRead: false
-      },
-      order: [['createdAt', 'DESC']]
+  markAsRead = catchAsync(async (req, res) => {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const notification = await notificationService.markAsRead(id, userId);
+    res.json({
+      success: true,
+      data: notification
     });
-    res.json(notifications);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
 
-exports.markAsRead = async (req, res) => {
-  try {
-    const notification = await Notification.findOne({
-      where: {
-        id: req.params.id,
-        userId: req.user.id
-      }
+  markAllAsRead = catchAsync(async (req, res) => {
+    const userId = req.user.id;
+
+    await notificationService.markAllAsRead(userId);
+    res.json({
+      success: true,
+      message: 'All notifications marked as read'
     });
+  });
 
-    if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
+  deleteNotification = catchAsync(async (req, res) => {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    await notificationService.deleteNotification(id, userId);
+    res.json({
+      success: true,
+      message: 'Notification deleted successfully'
+    });
+  });
+
+  getPreferences = catchAsync(async (req, res) => {
+    const userId = req.user.id;
+
+    const preferences = await notificationService.getNotificationPreferences(userId);
+    res.json({
+      success: true,
+      data: preferences
+    });
+  });
+
+  updatePreferences = catchAsync(async (req, res) => {
+    const userId = req.user.id;
+    const preferences = {
+      email: req.body.email,
+      push: req.body.push,
+      emailTypes: req.body.emailTypes,
+      pushTypes: req.body.pushTypes
+    };
+
+    // Validate preferences
+    if (preferences.emailTypes && !Array.isArray(preferences.emailTypes)) {
+      return res.status(400).json({
+        success: false,
+        error: 'emailTypes must be an array'
+      });
     }
 
-    notification.isRead = true;
-    await notification.save();
-
-    res.json({ message: 'Notification marked as read' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.markAllAsRead = async (req, res) => {
-  try {
-    await Notification.update(
-      { isRead: true },
-      {
-        where: {
-          userId: req.user.id,
-          isRead: false
-        }
-      }
-    );
-
-    res.json({ message: 'All notifications marked as read' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.deleteNotification = async (req, res) => {
-  try {
-    const result = await Notification.destroy({
-      where: {
-        id: req.params.id,
-        userId: req.user.id
-      }
-    });
-
-    if (!result) {
-      return res.status(404).json({ message: 'Notification not found' });
+    if (preferences.pushTypes && !Array.isArray(preferences.pushTypes)) {
+      return res.status(400).json({
+        success: false,
+        error: 'pushTypes must be an array'
+      });
     }
 
-    res.json({ message: 'Notification deleted' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Admin Notification Functions
-exports.sendNotification = async (req, res) => {
-  try {
-    const { userId, type, title, message, priority, scheduledFor, data } = req.body;
-
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const notification = await Notification.create({
+    const updatedPreferences = await notificationService.updateNotificationPreferences(
       userId,
-      type,
-      title,
-      message,
-      priority: priority || 'medium',
-      scheduledFor: scheduledFor || null,
-      data: data || {}
-    });
-
-    res.status(201).json(notification);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.broadcastNotification = async (req, res) => {
-  try {
-    const { type, title, message, priority, userFilter } = req.body;
-
-    // Build user filter
-    let whereClause = {};
-    if (userFilter) {
-      if (userFilter.role) whereClause.role = userFilter.role;
-      if (userFilter.isActive !== undefined) whereClause.isActive = userFilter.isActive;
-    }
-
-    const users = await User.findAll({
-      where: whereClause,
-      attributes: ['id']
-    });
-
-    const notifications = await Promise.all(
-      users.map(user =>
-        Notification.create({
-          userId: user.id,
-          type,
-          title,
-          message,
-          priority: priority || 'medium'
-        })
-      )
+      preferences
     );
 
-    res.status(201).json({
-      message: `Notification broadcast to ${notifications.length} users`,
-      count: notifications.length
+    res.json({
+      success: true,
+      data: updatedPreferences
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+  });
+}
 
-exports.getScheduledNotifications = async (req, res) => {
-  try {
-    const notifications = await Notification.findAll({
-      where: {
-        scheduledFor: {
-          [Op.ne]: null,
-          [Op.gt]: new Date()
-        }
-      },
-      include: [{
-        model: User,
-        attributes: ['name', 'email']
-      }],
-      order: [['scheduledFor', 'ASC']]
-    });
-
-    res.json(notifications);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.cancelScheduledNotification = async (req, res) => {
-  try {
-    const notification = await Notification.findOne({
-      where: {
-        id: req.params.id,
-        scheduledFor: {
-          [Op.ne]: null,
-          [Op.gt]: new Date()
-        }
-      }
-    });
-
-    if (!notification) {
-      return res.status(404).json({ message: 'Scheduled notification not found' });
-    }
-
-    await notification.destroy();
-    res.json({ message: 'Scheduled notification cancelled' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-}; 
+module.exports = new NotificationController(); 
