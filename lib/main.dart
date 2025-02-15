@@ -1,65 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:hmo_app/services/auth_service.dart';
-import 'package:hmo_app/services/user_preferences_service.dart';
-import 'package:hmo_app/screens/auth/login_screen.dart';
-import 'package:hmo_app/theme/app_theme.dart';
-import 'package:hmo_app/services/storage_service.dart';
-import 'package:hmo_app/widgets/animated_theme.dart';
-import 'package:hmo_app/screens/legal/terms_of_service_screen.dart';
-import 'package:hmo_app/screens/legal/privacy_policy_screen.dart';
-import 'package:hmo_app/screens/medical/user_medical_records_screen.dart';
-import 'package:hmo_app/services/admin_notification_service.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import 'flutter_flow/flutter_flow_util.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await StorageService().init();
-  
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
-        ChangeNotifierProvider(create: (_) => UserPreferencesService()),
-        ChangeNotifierProvider(create: (_) => AdminNotificationService()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  GoRouter.optionURLReflectsImperativeAPIs = true;
+  usePathUrlStrategy();
+
+  await FlutterFlowTheme.initialize();
+
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+
+  static _MyAppState of(BuildContext context) =>
+      context.findAncestorStateOfType<_MyAppState>()!;
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = FlutterFlowTheme.themeMode;
+
+  late AppStateNotifier _appStateNotifier;
+  late GoRouter _router;
+  String getRoute([RouteMatch? routeMatch]) {
+    final RouteMatch lastMatch =
+        routeMatch ?? _router.routerDelegate.currentConfiguration.last;
+    final RouteMatchList matchList = lastMatch is ImperativeRouteMatch
+        ? lastMatch.matches
+        : _router.routerDelegate.currentConfiguration;
+    return matchList.uri.toString();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _appStateNotifier = AppStateNotifier.instance;
+    _router = createRouter(_appStateNotifier);
+  }
+
+  void setThemeMode(ThemeMode mode) => safeSetState(() {
+        _themeMode = mode;
+        FlutterFlowTheme.saveThemeMode(mode);
+      });
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserPreferencesService>(
-      builder: (context, prefs, _) {
-        final platformBrightness = MediaQuery.platformBrightnessOf(context);
-        final isDark = prefs.useSystemTheme 
-            ? platformBrightness == Brightness.dark
-            : prefs.isDarkMode;
-            
-        final themeData = isDark ? AppTheme.darkTheme : AppTheme.lightTheme;
-        final theme = themeData.copyWith(
-          textTheme: AppTheme.getTextTheme(prefs.textScaleFactor),
-        );
-        
-        return AnimatedThemeWrapper(
-          theme: theme,
-          child: MaterialApp(
-            title: 'CareLink',
-            theme: theme,
-            initialRoute: '/login',
-            routes: {
-              '/login': (context) => const LoginScreen(),
-              '/terms': (context) => const TermsOfServiceScreen(),
-              '/privacy': (context) => const PrivacyPolicyScreen(),
-              '/medical-records': (context) => const UserMedicalRecordsScreen(),
-            },
-            debugShowCheckedModeBanner: false,
-          ),
-        );
-      },
+    return MaterialApp.router(
+      title: 'HMO App',
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en', '')],
+      theme: ThemeData(
+        brightness: Brightness.light,
+        useMaterial3: false,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: false,
+      ),
+      themeMode: _themeMode,
+      routerConfig: _router,
     );
   }
 }
