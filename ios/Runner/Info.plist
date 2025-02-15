@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>HMO App</string>
+	<string>CareLink</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>HMO App</string>
+	<string>CareLink</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 
@@ -22,14 +22,25 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
-	<array>        <dict>
+	<array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <!--FF_REVERSED_CLIENT_ID-->
+                
+            </array>
+        </dict>
+
+        <dict>
         <key>CFBundleTypeRole</key>
         <string>Editor</string>
         <key>CFBundleURLName</key>
-        <string>hmoapp.com</string>
+        <string>carelink.com</string>
         <key>CFBundleURLSchemes</key>
         <array>
-        <string>hmoapp</string>
+        <string>carelink</string>
         </array>
         </dict>
     </array>

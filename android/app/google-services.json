@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "121349819635",
+    "project_id": "h-m-o-app-9y3jk1",
+    "storage_bucket": "h-m-o-app-9y3jk1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:121349819635:android:1c9fa5c98ed24afd82fb86",
+        "android_client_info": {
+          "package_name": "com.ecstasygroup.carelink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuM3YFVO9zDCBOUhGc79yqwARt5st6hdE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

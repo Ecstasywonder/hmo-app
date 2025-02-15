@@ -1,4 +1,4 @@
-package com.mycompany.hmoapp
+package com.ecstasygroup.carelink
 
 import io.flutter.embedding.android.FlutterActivity
 
