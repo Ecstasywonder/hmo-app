@@ -1,16 +1,9 @@
 # hmo_app
 
-A new Flutter project.
+The HMO-App is a health insurance comparison app that provides access to quality healthcare for rural communities and developing cities, allowing them to compare packages and pricing/benefits offered by these organisations.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#Features
+HMO Listing
+HMO Comparison
+User Dashboard
+Account Management
