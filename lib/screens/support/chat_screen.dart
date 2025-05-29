@@ -154,7 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             children: [
                               SizedBox(
                                 width: 40,
-                                child: LoadingWidget(size: 8),
+                                child: LoadingWidget(),
                               ),
                               Text('Agent is typing...'),
                             ],

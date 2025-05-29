@@ -230,4 +230,21 @@ class _RescheduleAppointmentScreenState extends State<RescheduleAppointmentScree
       ),
     );
   }
-} 
+}
+
+class AppointmentService {
+  Future<List<TimeOfDay>> getAvailableSlots(String hospitalId, DateTime date) async {
+    // Dummy implementation: replace with actual logic to fetch available time slots.
+    await Future.delayed(const Duration(seconds: 1));
+    return [
+      const TimeOfDay(hour: 9, minute: 0),
+      const TimeOfDay(hour: 10, minute: 0),
+      const TimeOfDay(hour: 11, minute: 0),
+    ];
+  }
+  
+  Future<void> rescheduleAppointment(String appointmentId, DateTime newDate, TimeOfDay newTime) async {
+    // Dummy implementation: replace with actual logic to reschedule the appointment.
+    await Future.delayed(const Duration(seconds: 1));
+  }
+}
