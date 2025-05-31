@@ -12,7 +12,7 @@ class FAQScreen extends StatefulWidget {
 class _FAQScreenState extends State<FAQScreen> {
   final _searchController = TextEditingController();
   String _selectedCategory = 'All';
-  List<String> _categories = [
+  final List<String> _categories = [
     'All',
     'General',
     'Plans & Coverage',

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../models/provider_model.dart';
-import '../utils/api_exception.dart';
 
 class ProviderService extends ChangeNotifier {
   final String _baseUrl = '${ApiConfig.baseUrl}/providers';
@@ -233,3 +232,11 @@ class PaginationData {
     required this.totalPages,
   });
 } 
+
+class ApiException implements Exception {
+  final String message;
+  ApiException(this.message);
+
+  @override
+  String toString() => 'ApiException: $message';
+}

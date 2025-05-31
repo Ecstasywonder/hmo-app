@@ -22,7 +22,7 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
   double? _minRating;
   bool _isLoading = false;
   bool _hasError = false;
-  List<ProviderModel> _providers = [];
+  final List<ProviderModel> _providers = [];
   List<ProviderModel> _selectedProviders = [];
   int _currentPage = 1;
   bool _hasMorePages = true;

@@ -20,7 +20,7 @@ class _TicketScreenState extends State<TicketScreen> {
   String _selectedType = 'General';
   String _selectedPriority = 'Normal';
   bool _isSubmitting = false;
-  List<String> _attachments = [];
+  final List<String> _attachments = [];
 
   final List<String> _ticketTypes = [
     'General',

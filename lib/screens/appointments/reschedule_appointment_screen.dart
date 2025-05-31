@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hmo_app/models/appointment.dart';
-import 'package:hmo_app/services/appointment_service.dart';
 import 'package:hmo_app/widgets/loading_widget.dart';
 
 class RescheduleAppointmentScreen extends StatefulWidget {
