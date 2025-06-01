@@ -10,6 +10,11 @@ import 'package:hmo_app/screens/legal/terms_of_service_screen.dart';
 import 'package:hmo_app/screens/legal/privacy_policy_screen.dart';
 import 'package:hmo_app/screens/medical/user_medical_records_screen.dart';
 import 'package:hmo_app/services/admin_notification_service.dart';
+// Import your screen widgets here
+import 'package:hmo_app/screens/support/contact_screen.dart';
+import 'package:hmo_app/screens/support/ticket_screen.dart';
+import 'package:hmo_app/screens/support/chat_screen.dart';
+import 'package:hmo_app/screens/support/faq_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +60,10 @@ class MyApp extends StatelessWidget {
               '/terms': (context) => const TermsOfServiceScreen(),
               '/privacy': (context) => const PrivacyPolicyScreen(),
               '/medical-records': (context) => const UserMedicalRecordsScreen(),
+              '/support/contact': (context) => ContactScreen(),
+              '/support/ticket': (context) => TicketScreen(),
+              '/support/chat': (context) => ChatScreen(),
+              '/support/faq': (context) => FAQScreen(),
             },
             debugShowCheckedModeBanner: false,
           ),

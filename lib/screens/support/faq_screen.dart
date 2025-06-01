@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../widgets/loading_widget.dart';
 import '../../widgets/empty_state_widget.dart';
 
 class FAQScreen extends StatefulWidget {

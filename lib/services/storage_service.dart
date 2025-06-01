@@ -3,7 +3,13 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:html' if (dart.library.io) 'dart:io' show window;
 import 'dart:convert';
 
-class StorageService {
+abstract class StorageServiceBase {
+  Future<void> save(String key, String value);
+  Future<String?> read(String key);
+  Future<void> delete(String key);
+}
+
+class StorageService implements StorageServiceBase {
   static final StorageService _instance = StorageService._internal();
   factory StorageService() => _instance;
   StorageService._internal();
@@ -38,4 +44,31 @@ class StorageService {
     }
     return {};
   }
-} 
+
+  @override
+  Future<void> save(String key, String value) async {
+    if (kIsWeb) {
+      window.localStorage[key] = value;
+    } else {
+      await _prefs.setString(key, value);
+    }
+  }
+
+  @override
+  Future<String?> read(String key) async {
+    if (kIsWeb) {
+      return window.localStorage[key];
+    } else {
+      return _prefs.getString(key);
+    }
+  }
+
+  @override
+  Future<void> delete(String key) async {
+    if (kIsWeb) {
+      window.localStorage.remove(key);
+    } else {
+      await _prefs.remove(key);
+    }
+  }
+}

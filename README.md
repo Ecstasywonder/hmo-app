@@ -1,137 +1,177 @@
-# hmo_app
+# 🏥 HMO App
 
-The HMO-App is a health insurance comparison app that provides access to quality healthcare for rural communities and developing cities, allowing them to compare packages and pricing/benefits offered by these organisations.
+**HMO App** is a full-stack health insurance comparison platform built with **Flutter** (frontend) and **Node.js + MySQL** (backend). The app improves healthcare access for underserved communities by allowing users to browse, compare, and subscribe to HMO packages. It also supports booking appointments, managing user profiles, and accessing hospital services in one place.
 
-#Features
-HMO Listing
-HMO Comparison
-User Dashboard
-Account Management
+---
 
-## Prerequisites
+## 🌐 Tech Stack
 
-- Node.js (v14 or higher)
-- MySQL (v8 or higher)
-- npm or yarn
+- **Frontend**: Flutter (Dart)
+- **Backend**: Node.js + Express
+- **Database**: MySQL
+- **ORM**: Sequelize
+- **Authentication**: JWT with Refresh Tokens
+- **Security**: Helmet, Rate Limiting, CORS
+- **Dev Tools**: Sequelize CLI, dotenv
 
-## Setup
+---
 
-1. Clone the repository:
+## ✨ Features
 
-```bash
-git clone <repository-url>
+### User-Facing
+
+- 🏥 **HMO Listing & Comparison**
+- 📅 **Appointment Booking**
+- 📂 **User Dashboard & Profile Management**
+- 🧾 **Claims and Health Records**
+- 🔐 **Secure Login and Signup**
+
+### Admin-Facing
+
+- 📊 **Admin Dashboard**
+- 🗃️ **Manage Users, Appointments, and Hospitals**
+- ⚙️ **System Configuration**
+
+---
+
+## 📦 Prerequisites
+
+- **Node.js** (v14+)
+- **MySQL** (v8+)
+- **Flutter SDK** (v3.0+ recommended)
+- **npm** or **yarn**
+
+---
+
+## 🛠️ Backend Setup
+
+1. **Clone the repository**:
+
+git clone <https://github.com/Ecstasywonder/hmo-app>
 cd backend
-```
 
-2. Install dependencies:
+2. **Install backend dependencies**:
 
-```bash
 npm install
-```
 
-3. Create a MySQL database:
+3. **Create a MySQL database**:
 
-```sql
 CREATE DATABASE hmo_app;
-```
 
-4. Configure environment variables:
+4. **Configure environment variables**:
 
 - Copy `.env.example` to `.env`
-- Update the values in `.env` with your configuration
+- Update with your credentials
 
-5. Run database migrations:
+5. **Run migrations**:
 
-```bash
 npx sequelize-cli db:migrate
-```
 
-6. (Optional) Seed the database with sample data:
+6. *(Optional)* **Seed sample data**:
 
-```bash
 npx sequelize-cli db:seed:all
-```
 
-## Running the Server
+7. **Start the backend server**:
 
-### Development
+npm run dev   # Development
+npm start     # Production
 
-```bash
-npm run dev
-```
+---
 
-### Production
+## 📱 Flutter Frontend Setup
 
-```bash
-npm start
-```
+1. **Navigate to the Flutter directory**:
 
-## API Documentation
+cd frontend
 
-### Authentication
+2. **Install packages**:
 
-- POST /api/auth/register - Register a new user
-- POST /api/auth/login - Login user
-- POST /api/auth/refresh-token - Refresh access token
-- POST /api/auth/logout - Logout user
-- GET /api/auth/me - Get current user
-- PUT /api/auth/profile - Update user profile
+flutter pub get
 
-### Appointments
+3. **Run the app**:
 
-- GET /api/appointments - Get user's appointments
-- POST /api/appointments - Book new appointment
-- GET /api/appointments/:id - Get appointment details
-- PUT /api/appointments/:id - Update appointment
-- DELETE /api/appointments/:id - Cancel appointment
-- GET /api/appointments/history - Get appointment history
-- POST /api/appointments/:id/reschedule - Reschedule appointment
-- POST /api/appointments/:id/confirm - Confirm appointment
+flutter run
 
-### Hospitals
+> Ensure your emulator/device is running, and the backend API is accessible via the correct base URL.
 
-- GET /api/hospitals - Get list of hospitals
-- GET /api/hospitals/:id - Get hospital details
-- GET /api/hospitals/specialties - Get available specialties
-- GET /api/hospitals/:id/doctors - Get hospital doctors
-- GET /api/hospitals/:id/time-slots - Get available time slots
+---
 
-### Admin
+## 📚 API Reference
 
-- GET /api/admin/dashboard - Get admin dashboard stats
-- GET /api/admin/users - Get all users
-- GET /api/admin/hospitals - Get all hospitals
-- GET /api/admin/appointments - Get all appointments
-- GET /api/admin/claims - Get all claims
-- GET /api/admin/settings - Get system settings
+**Authentication**
 
-## Security Features
+- `POST /api/auth/register` – Register a user
+- `POST /api/auth/login` – Login
+- `POST /api/auth/refresh-token` – Refresh token
+- `POST /api/auth/logout` – Logout
+- `GET /api/auth/me` – Get profile
+- `PUT /api/auth/profile` – Update profile
 
-- JWT-based authentication with refresh tokens
-- Rate limiting
-- Password hashing
-- Account locking after failed attempts
-- Email verification
-- Two-factor authentication (optional)
-- Request validation
-- CORS protection
-- Helmet security headers
+**Appointments**
 
-## Error Handling
+- `GET /api/appointments` – List appointments
+- `POST /api/appointments` – Book appointment
+- `GET /api/appointments/:id` – Appointment details
+- `PUT /api/appointments/:id` – Update
+- `DELETE /api/appointments/:id` – Cancel
+- `GET /api/appointments/history` – History
+- `POST /api/appointments/:id/reschedule` – Reschedule
+- `POST /api/appointments/:id/confirm` – Confirm
 
-The API uses standard HTTP status codes and returns errors in the following format:
+**Hospitals**
 
-```json
+- `GET /api/hospitals` – List
+- `GET /api/hospitals/:id` – Details
+- `GET /api/hospitals/specialties` – Specialties
+- `GET /api/hospitals/:id/doctors` – Doctors
+- `GET /api/hospitals/:id/time-slots` – Time slots
+
+**Admin**
+
+- `GET /api/admin/dashboard` – Stats
+- `GET /api/admin/users` – All users
+- `GET /api/admin/hospitals` – All hospitals
+- `GET /api/admin/appointments` – All appointments
+- `GET /api/admin/claims` – All claims
+- `GET /api/admin/settings` – System settings
+
+---
+
+## 🔐 Security Features
+
+- JWT-based Authentication + Refresh Tokens
+- Rate Limiting and CORS Protection
+- Password Hashing (bcrypt)
+- Email Verification
+- Two-Factor Authentication (Optional)
+- Request Validation
+- Helmet HTTP Security Headers
+
+---
+
+## ❌ Error Format
+
+All errors follow this standard format:
+
 {
-  "error": "Error message",
-  "details": "Detailed error message (only in development)"
+  "error": "Brief message",
+  "details": "Verbose description (dev only)"
 }
-```
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+## 🤝 Contributing
+
+Open-source contributions are wlcomed!
+
+1. Fork the repository  
+2. Create a new branch (`feature/your-feature`)  
+3. Commit and push your changes  
+4. Open a Pull Request with a clear description
+
+---
+
+## 💬 Contact
+
+Got questions or suggestions?  
+Start a conversation via [GitHub Issues](https://github.com/hmo-app/issues) or email the maintainer at <chinwenduonyeani@gmail.com>
