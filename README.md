@@ -1,35 +1,33 @@
 # HMO App — Healthcare Insurance Platform
 
-HMO App is a full-stack healthcare insurance comparison platform built with **Flutter**, **Node.js/Express**, and **MySQL**.
+**Full-stack healthcare insurance comparison platform demonstrating mobile application engineering, REST APIs, relational data and security controls.**
 
-The project demonstrates full-stack application development across a mobile frontend, REST API backend, relational database, authentication, security controls, migrations, and administrative workflows.
+## Engineering highlights
 
-## Engineering Highlights
-
-- Flutter/Dart mobile frontend
+- Flutter / Dart mobile client
 - Node.js + Express REST API
-- MySQL persistence with Sequelize
+- MySQL with Sequelize
 - Database migrations and seeders
-- JWT authentication with refresh tokens
+- JWT access and refresh tokens
 - Email verification
 - Optional two-factor authentication
 - Helmet security headers
 - Rate limiting
-- CORS protection
-- Password hashing with bcrypt
+- CORS controls
+- bcrypt password hashing
 - Request validation
-- Administrative API workflows
-- Standardized API error responses
+- Administrative workflows
+- Standardized API error handling
 
-## Product Features
+## Product workflows
 
-### User
+### Member experience
 
 - HMO listing and comparison
-- Appointment booking
-- User dashboard and profile management
-- Claims and health records
-- Secure authentication
+- Hospital and doctor discovery
+- Appointment booking and rescheduling
+- User profile management
+- Claims and health-record workflows
 
 ### Administration
 
@@ -42,123 +40,51 @@ The project demonstrates full-stack application development across a mobile fron
 
 ## Architecture
 
-The project separates the Flutter client from the Node.js/Express API and relational data layer.
+Flutter / Dart → Node.js + Express REST API → MySQL
 
-**Frontend:** Flutter / Dart
+The API layer owns authentication, authorization, validation, security middleware, appointment workflows, hospital workflows and administrative workflows. Sequelize provides the relational model, migrations and seed data.
 
-**Backend:** Node.js / Express
+## Local development
 
-**Database:** MySQL
+Requirements: Node.js 14+, MySQL 8+, Flutter SDK 3+, npm or yarn.
 
-**ORM & migrations:** Sequelize
+Create a local database:
 
-**Authentication:** JWT + refresh tokens
+    CREATE DATABASE hmo_app;
 
-**Security:** Helmet, rate limiting, CORS, bcrypt, email verification, optional 2FA, request validation
+Configure `backend/.env` from `backend/.env.example`, then:
 
-## Local Development
+    cd backend
+    npm install
+    npx sequelize-cli db:migrate
+    npx sequelize-cli db:seed:all
+    npm run dev
 
-### Prerequisites
+In another terminal:
 
-- Node.js 14+
-- MySQL 8+
-- Flutter SDK 3.0+
-- npm or yarn
+    cd frontend
+    flutter pub get
+    flutter run
 
-### Backend
+## API surface
 
-```bash
-git clone https://github.com/Ecstasywonder/hmo-app
-cd backend
-npm install
-```
+Representative endpoints include `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh-token`, `GET /api/auth/me`, `GET /api/appointments`, `POST /api/appointments`, `GET /api/hospitals`, `GET /api/hospitals/:id/doctors`, `GET /api/admin/dashboard`, `GET /api/admin/users` and `GET /api/admin/claims`.
 
-Create a local MySQL database:
+## Security and data handling
 
-```sql
-CREATE DATABASE hmo_app;
-```
+The application includes authentication, authorization, password hashing, validation, rate limiting, HTTP security headers, CORS controls, email verification and optional 2FA.
 
-Configure the environment using `.env.example`, then run:
+**Do not use real patient, health or financial information in development.**
 
-```bash
-npx sequelize-cli db:migrate
-npx sequelize-cli db:seed:all
-npm run dev
-```
+This repository is a portfolio project and is not presented as a production healthcare system.
 
-### Flutter Frontend
+## Portfolio focus
 
-```bash
-cd frontend
-flutter pub get
-flutter run
-```
+**Mobile client → REST API → relational database → migrations → authentication → security controls → administrative workflows**
 
-Ensure the emulator/device can reach the backend API using the configured base URL.
-
-## API Reference
-
-### Authentication
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/refresh-token`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
-- `PUT /api/auth/profile`
-
-### Appointments
-
-- `GET /api/appointments`
-- `POST /api/appointments`
-- `GET /api/appointments/:id`
-- `PUT /api/appointments/:id`
-- `DELETE /api/appointments/:id`
-- `GET /api/appointments/history`
-- `POST /api/appointments/:id/reschedule`
-- `POST /api/appointments/:id/confirm`
-
-### Hospitals
-
-- `GET /api/hospitals`
-- `GET /api/hospitals/:id`
-- `GET /api/hospitals/specialties`
-- `GET /api/hospitals/:id/doctors`
-- `GET /api/hospitals/:id/time-slots`
-
-### Administration
-
-- `GET /api/admin/dashboard`
-- `GET /api/admin/users`
-- `GET /api/admin/hospitals`
-- `GET /api/admin/appointments`
-- `GET /api/admin/claims`
-- `GET /api/admin/settings`
-
-## Security
-
-The backend includes:
-
-- JWT authentication and refresh tokens
-- Password hashing
-- Email verification
-- Optional two-factor authentication
-- Helmet HTTP security headers
-- Rate limiting
-- CORS controls
-- Request validation
-
-The project is intended for development and portfolio demonstration. Do not use real patient or health data in a development environment.
-
-## Engineering Practices
-
-**API development → database design → migrations → authentication → security controls → administrative workflows → reproducible local setup**
-
-## Author
+---
 
 **Chinwendu Onyeani**  
-Software / DevOps Engineer
-
+Software / DevOps Engineer  
 GitHub: https://github.com/Ecstasywonder  
 Email: chinwenduonyeani@gmail.com
