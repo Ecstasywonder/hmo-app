@@ -1,3 +1,28 @@
+<!-- PORTFOLIO_STAR_V1 -->
+# HMO App — Full-Stack Insurance & Care Workflows
+
+**Software engineering case study — STAR**
+
+### Situation
+Insurance comparison, appointments and claims require coordinated mobile, API and relational data workflows.
+
+### Task
+Implement a cross-platform client and protected backend for member and administrative operations.
+
+### Action
+Built Flutter/Dart UI and a Node.js/Express/MySQL API with Sequelize migrations, JWT access/refresh tokens, verification, optional 2FA, input validation, role-aware administration and middleware security controls.
+
+### Result
+The repository documents member and administration routes, database migration/seed setup and security mechanisms. It is a portfolio implementation, not a certified or production healthcare system.
+
+**Explore the implementation:** [Mobile app](lib) · [Backend](backend) · [Roadmap](roadmap.md)
+
+> Portfolio disclosure: This section reports implementation scope and documented evidence, not unverified production or customer outcomes.
+
+---
+
+## Full project documentation
+
 # HMO App — Healthcare Insurance Platform
 
 **Full-stack healthcare insurance comparison platform demonstrating mobile application engineering, REST APIs, relational data and security controls.**
